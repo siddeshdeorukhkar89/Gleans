@@ -1,0 +1,37 @@
+Assumptions:
+1.- In the section "Additional notes", I realized that the correct correspondence is:
+    "M:1 relationship between line_item_id and canonical_line_item_id
+     (i.e. different raw line items can be mapped to a single canonical line item)"
+
+2. For the no_invoice_received glean generation, QUARTERLY case:
+
+    From my point of view, the QUARTERLY case logic should only trigger the glean from the day when vendor usually
+    sends the invoice (measuring days in a quarterly basis ~90 days in a quarter), and keep triggering the glean till
+    the end of the current QUARTER or until the day when new invoice received.
+
+    Similarly, the glean text should be:
+    [canonical_vendor_id] generally charges between on [most_frequent_day_number] day of each quarter invoices are sent.
+    On [date], an invoice from [canonical_vendor_id] has not been received
+
+
+Important note:
+
+    Before running the code you should generate the "raw_data" directory and include there the input files
+    "invoice.csv" and "line_item.csv".
+
+
+Output CSV structure:
+
+	glean_id - Glean UUID : system generated
+	glean_date - Date when glean was triggered
+	glean_text - Glean Text
+	glean_type - Enum (vendor_not_seen_in_a_while, accrual_alert, large_month_increase_mtd, no_invoice_received)
+	    1: vendor_not_seen_in_a_while
+	    2: accrual_alert
+	    3: large_month_increase_mtd
+	    4: no_invoice_received
+	glean_location - Enum (invoice or vendor)
+	    1: invoice
+	    2: vendor
+	invoice_id - Invoice UUID
+	canonical_vendor_id - Vendor UUID
